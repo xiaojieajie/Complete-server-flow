@@ -32,7 +32,7 @@ yum install git
 
 ## 安装nginx
 
-  1. 首先安装nginx最新版(例如我装的是1.18.0版本)
+  1. 首先安装[nginx最新版](http://nginx.org/en/download.html)(例如我装的是1.18.0版本)
   2. 下载解压包放置到/usr/local/src 并cd到该位置
   3. tar -zxvf nginx-1.18.0.tar.gz 解压
   4. cd nginx-1.18.0 进入到nginx目录
@@ -73,9 +73,34 @@ yum install git
 
 ## 配置开机自启动(配不配置都行)
 
-systemctl enable nginx
+1. vim /usr/lib/systemd/system/nginx.service
 
-## 拓展(看一看就行)
+写入
+
+```nginx
+[Unit]
+Description=nginx
+After=network.target
+   
+[Service]
+Type=forking
+PIDFile=/usr/local/src/nginx/logs/nginx.pid
+ExecStart=/usr/local/src/nginx/sbin/nginx
+ExecReload=/usr/local/src/nginx/sbin/nginx -s reload
+ExecStop=/usr/local/src/nginx/sbin/nginx -s stop
+PrivateTmp=true
+   
+[Install]
+WantedBy=multi-user.target
+```
+
+路径是你安装后的目录
+
+设置开机自启动：systemctl enable nginx
+
+关闭开机启动：systemctl disable nginx.service
+
+# 拓展(看一看就行)
 
 其它命令
 
@@ -87,11 +112,11 @@ systemctl enable nginx
 6. 检查特定目录的配置文件是否正确：nginx -t -c /特定目录/nginx.conf
 7. 查看版本信息：nginx -v
 
-# 安装git
+## 安装git
 安装：yum install -y git
 查看版本：git version
 
-# 安装node
+## 安装node
 
 1. curl --silent --location https://rpm.nodesource.com/setup_12.x | sudo bash -
 
@@ -101,7 +126,7 @@ systemctl enable nginx
 
 这里版本不重要，等会安装nvm会安装到最新版
 
-# 安装nvm
+## 安装nvm
 
 1. curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash
 
@@ -124,6 +149,26 @@ nvm install 该版本即可
 
 然后用 nvm use 切换到该版本
 
+## 安装mysql
+
+1. wget https://dev.mysql.com/get/mysql80-community-release-el8-1.noarch.rpm
+
+2. yum install mysql80-community-release-el8-1.noarch.rpm （安装数据源）
+3. yum repolist enabled | grep "mysql.*-community.*" （检查数据源）
+4. cat /etc/yum.repos.d/mysql-community.repo （配置数据源（可不配置）
+5. yum module disable mysql （禁用CentOS8自带mysql模块）
+6. yum install mysql-community-server （安装数据库）
+7. service mysqld start （启动mysql）
+8. service mysqld status （查看mysql）状态
+9. grep 'temporary password' /var/log/mysqld.log （显示mysql的随机密码，重要，等会登陆mysql需要）
+10. mysql -u root -p （登录并修改mysql密码）
+11. ALTER USER 'root'@'localhost' IDENTIFIED BY '你的密码哦哦'; （修改密码）
+12. 开放远程访问
+    1. create user 'root'@'%' identified by '你的密码哦哦哦';
+    2. grant all privileges on *.* to 'root'@'%' with grant option;
+13. 去阿里云安全组打开3306端口
+
+已经完成了，可以用数据库软件连接了
 
 # 结语
 
@@ -171,20 +216,19 @@ proxy_cache cache_one;
 
 #### 开放端口
 
- 1. firewall-cmd --zone=public --add-port=5672/tcp --permanent   # 开放5672端口
+1. firewall-cmd --zone=public --add-port=5672/tcp --permanent   # 开放5672端口
 
- 2. firewall-cmd --zone=public --remove-port=5672/tcp --permanent  #关闭5672端口
+2. firewall-cmd --zone=public --remove-port=5672/tcp --permanent  #关闭5672端口
 
- 3. firewall-cmd --reload   # 配置立即生效
-  
+3. firewall-cmd --reload   # 配置立即生效
 
-   1. firewall-cmd --zone=public --list-ports 查看防火墙所有开放的端口
-   2. systemctl stop firewalld.service 关闭防火墙
-   3. firewall-cmd --state 查看防火墙状态
-   4. netstat -lnpt （重要） 查看监听的端口
-   5. netstat -lnpt |grep 5672 （5672是端口号）检查端口被哪个进程占用
-   6. ps 6832 （6832是进程id）查看进程的详细信息
-   7. kill -9 6832 中止进程
+4. firewall-cmd --zone=public --list-ports 查看防火墙所有开放的端口
+5. systemctl stop firewalld.service 关闭防火墙
+6. firewall-cmd --state 查看防火墙状态
+7. netstat -lnpt （重要） 查看监听的端口
+8. netstat -lnpt |grep 5672 （5672是端口号）检查端口被哪个进程占用
+9. ps 6832 （6832是进程id）查看进程的详细信息
+10. kill -9 6832 中止进程
 
 ### 可能访问页面会出现的403错误
 
@@ -298,4 +342,6 @@ http {
     # include /www/server/panel/vhost/nginx/*.conf;
 }
 ```
-  
+
+
+
