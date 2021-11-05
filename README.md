@@ -170,6 +170,29 @@ nvm install 该版本即可
 
 已经完成了，可以用数据库软件连接了
 
+## nginx的一些问题
+
+如果nginx已启动，且服务器打开了80端口，可用这个命令查看是否监听了80端口（netstat -lnpt），且阿里云出入口开放了80端口
+
+但是还是无法通过外网ip访问，可以这么操作
+
+1. 看看是不是打开了防火墙
+
+firewall-cmd --state：查看防火墙运行状态，如果提示running 证明防火墙已启动
+
+2. 解决方式1：关闭防火墙，网站即可访问
+3. 解决方式2：防火墙内允许80端口
+
+    1. firewall-cmd --permanent --zone=public --add-port=80/tcp --permanent
+    2. firewall-cmd --permanent --query-port=80/tcp ：查看端口，提示yes即可
+    3. firewall-cmd --reload 添加完端口之后一定要reload一下，重新加载防火墙配置
+    4. firewall-cmd --list-all 然后再查看防火墙规则就有80端口号了
+
+解决
+
+
+
+
 # 结语
 
 然后自己配置nginx玩去吧
