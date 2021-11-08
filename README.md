@@ -151,24 +151,14 @@ nvm install 该版本即可
 
 ## 安装mysql
 
-1. wget https://dev.mysql.com/get/mysql80-community-release-el8-1.noarch.rpm
+[请看阿里云安装数据库得文档](https://help.aliyun.com/document_detail/178136.html)
 
-2. yum install mysql80-community-release-el8-1.noarch.rpm （安装数据源）
-3. yum repolist enabled | grep "mysql.*-community.*" （检查数据源）
-4. cat /etc/yum.repos.d/mysql-community.repo （配置数据源（可不配置）
-5. yum module disable mysql （禁用CentOS8自带mysql模块）
-6. yum install mysql-community-server （安装数据库）
-7. service mysqld start （启动mysql）
-8. service mysqld status （查看mysql）状态
-9. grep 'temporary password' /var/log/mysqld.log （显示mysql的随机密码，重要，等会登陆mysql需要）
-10. mysql -u root -p （登录并修改mysql密码）
-11. ALTER USER 'root'@'localhost' IDENTIFIED BY '你的密码哦哦'; （修改密码）
-12. 开放远程访问
-    1. create user 'root'@'%' identified by '你的密码哦哦哦';
-    2. grant all privileges on *.* to 'root'@'%' with grant option;
-13. 去阿里云安全组打开3306端口
+
+最后不要忘记，去阿里云安全组打开3306端口和防火墙打开3306端口
 
 已经完成了，可以用数据库软件连接了
+
+
 
 ## nginx的一些问题
 
