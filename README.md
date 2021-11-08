@@ -151,14 +151,102 @@ nvm install 该版本即可
 
 ## 安装mysql
 
+任选一个版本安装即可
+
+### 安装5.7版本
 [请看阿里云安装数据库得文档](https://help.aliyun.com/document_detail/178136.html)
 
+阿里云的mysql是5.7版本的，如果想装8.x版本的看下面
 
-最后不要忘记，去阿里云安全组打开3306端口和防火墙打开3306端口
+### 安装8.0以上版本
 
-已经完成了，可以用数据库软件连接了
+1. wget https://dev.mysql.com/get/mysql80-community-release-el8-1.noarch.rpm
 
+2. yum install mysql80-community-release-el8-1.noarch.rpm （安装数据源）
 
+3. yum install mysql-community-server （安装数据库）
+4. service mysqld start （启动mysql）
+5. service mysqld status （查看mysql）状态
+6. grep 'temporary password' /var/log/mysqld.log （显示mysql的随机密码，重要，等会登陆mysql需要，如果多次生成就看最下面一条）
+   
+    > 说明 下一步对MySQL进行安全性配置时，会使用该初始密码。
+7. 运行下列命令对MySQL进行安全性配置。
+
+    ```
+    mysql_secure_installation
+    ```
+   1. 重置root用户的密码。
+    ```
+    Enter password for user root: #输入上一步获取的root用户初始密码
+    The 'validate_password' plugin is installed on the server.
+    The subsequent steps will run with the existing configuration of the plugin.
+    Using existing password for root.
+    Estimated strength of the password: 100 
+    Change the password for root ? ((Press y|Y for Yes, any other key for No) : Y #是否更改root用户密码，输入Y
+    New password: #输入新密码，长度为8至30个字符，必须同时包含大小写英文字母、数字和特殊符号。特殊符号可以是()` ~!@#$%^&*-+=|{}[]:;‘<>,.?/
+    Re-enter new password: #再次输入新密码
+    Estimated strength of the password: 100 
+    Do you wish to continue with the password provided?(Press y|Y for Yes, any other key for No) : Y #是否继续操作，输入Y
+    ```
+
+    2. 删除匿名用户账号。
+
+    ```
+    By default, a MySQL installation has an anonymous user, allowing anyone to log into MySQL without having to have a user account created for them. This is intended only for testing, and to make the installation go a bit smoother. You should remove them before moving into a production environment.
+    Remove anonymous users? (Press y|Y for Yes, any other key for No) : Y  #是否删除匿名用户，输入Y
+    Success.
+    ```
+
+    3. 禁止root账号远程登录。
+
+    ```
+    Disallow root login remotely? (Press y|Y for Yes, any other key for No) : Y #禁止root远程登录，输入Y
+    Success.
+    ```
+
+    4. 删除test库以及对test库的访问权限。
+
+    ```
+    Remove test database and access to it? (Press y|Y for Yes, any other key for No) : Y #是否删除test库和对它的访问权限，输入Y
+   - Dropping test database...
+    Success.
+    ```
+
+    5. 重新加载授权表。
+
+    ```
+    Reload privilege tables now? (Press y|Y for Yes, any other key for No) : Y #是否重新加载授权表，输入Y
+    Success.
+    All done!
+    ```
+
+8. 远程访问MySQL数据库
+
+    1. 运行以下命令后，输入root用户的密码登录MySQL。
+
+        ```
+         mysql -uroot -p
+        ```
+
+    2. 依次运行以下命令创建远程登录MySQL的账号。示例账号为dms、密码为123456
+
+        ```
+           mysql> create user 'jie'@'%' identified by '你的密码哦哦哦';  #使用root替换jie，可设置为允许root账号远程登录。
+           mysql> grant all privileges on *.* to 'jie'@'%' with grant option; # 账户要跟上面一致
+           mysql> flush privileges;
+
+        ```
+
+    > 说明
+        > 建议您使用非root账号远程登录MySQL数据库。
+        > 实际创建账号时，需将你的密码哦哦哦6更换为符合要求的密码： 长度为8至30个字符，必须同时包含大小写英文字母、数字和特殊符号。可以使用以下特殊符号：()` ~!@#$%^&*-+=|{}[]:;‘<>,.?/
+
+9. 去阿里云安全组打开3306端口和防火墙打开3306端口
+
+已经完成了，可以用数据库软件连接了，按我的配置来登陆就是
+
+账户：jie
+密码：你的密码哦哦哦
 
 ## nginx的一些问题
 
